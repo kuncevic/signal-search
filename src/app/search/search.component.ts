@@ -18,7 +18,6 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     }
     <section class="actions">
       <button (click)="data.reload()">Reload</button>
-      <button (click)="addUser()">Add</button>
       <button (click)="data.set([])">Clear</button>
     </section>
     <ul>
@@ -32,6 +31,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 })
 export class SearchComponent {
   query = signal('');
+
   data = resource<User[], { query: string }>({
     request: () => ({ query: this.query() }),
     loader: async ({request, abortSignal}) => {
@@ -42,11 +42,4 @@ export class SearchComponent {
       return await users.json();
     }
   });
-  constructor() {}
-  addUser() {
-    const user = { id: 123, name: "Web Directions" };
-    this.data.update(
-      users => users ? [user, ...users] : [user]
-    )
-  }
 }
