@@ -1,4 +1,4 @@
-import { Component, resource, signal } from '@angular/core';
+import {Component, computed, resource, ResourceLoaderParams, signal} from '@angular/core';
 import { User, API_URL } from './types';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 
@@ -33,12 +33,13 @@ export class SearchComponent {
   query = signal('');
 
   data = resource<User[], { query: string }>({
-    request: () => ({ query: this.query() }),
-    loader: async ({request, abortSignal}) => {
-      const users = await fetch(`${API_URL}?name_like=^${request.query}`, {
+    params: computed(() => ({ query: this.query() })),
+    loader: async (options: ResourceLoaderParams<{ query: string }>): Promise<User[]> => {
+      const { params: { query }, abortSignal } = options;
+      const users = await fetch(`${API_URL}?name_like=^${query}`, {
         signal: abortSignal
       });
-      if (!users.ok) throw Error(`Could not fetch...`)
+      if (!users.ok) throw new Error(`Could not fetch...`);
       return await users.json();
     }
   });
